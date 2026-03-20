@@ -179,6 +179,7 @@ export function buildNetworkData(rawConnections: RawConnection[]): {
   const links: GraphLink[] = [];
 
   Object.values(byCompany).forEach(ids => {
+    // Skip singletons (no edge to add) and very large groups (>50) to avoid O(n²) edge explosion
     if (ids.length < 2 || ids.length > 50) return;
     for (let i = 0; i < ids.length; i++) {
       for (let j = i + 1; j < ids.length; j++) {
@@ -191,6 +192,7 @@ export function buildNetworkData(rawConnections: RawConnection[]): {
   });
 
   Object.values(byIndustry).forEach(ids => {
+    // Industry edges are weaker signals, so use a tighter cap (30) to keep the graph readable
     if (ids.length < 2 || ids.length > 30) return;
     for (let i = 0; i < ids.length; i++) {
       for (let j = i + 1; j < ids.length; j++) {

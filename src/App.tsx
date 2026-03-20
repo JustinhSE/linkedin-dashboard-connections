@@ -66,11 +66,15 @@ function App() {
         .map(c => c.id)
     );
 
+    // After force-graph simulation, link endpoints may become objects with an id property
+    const getLinkNodeId = (endpoint: string | { id: string }): string =>
+      typeof endpoint === 'object' ? endpoint.id : endpoint;
+
     return {
       nodes: graphData.nodes.filter(n => matchIds.has(n.id)),
       links: graphData.links.filter(l =>
-        matchIds.has(typeof l.source === 'object' ? (l.source as { id: string }).id : l.source as string) &&
-        matchIds.has(typeof l.target === 'object' ? (l.target as { id: string }).id : l.target as string)
+        matchIds.has(getLinkNodeId(l.source as string | { id: string })) &&
+        matchIds.has(getLinkNodeId(l.target as string | { id: string }))
       ),
     };
   }, [graphData, connections, searchQuery, filterCompany, filterIndustry]);
