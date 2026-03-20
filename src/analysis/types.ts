@@ -28,7 +28,7 @@ export interface Connection {
   clusterLabel?: string;
   influenceScore: number;
   degreeCentrality: number;
-  betweennessCentrality: number;
+  bridgeScore: number;
   clusteringCoefficient: number;
 }
 

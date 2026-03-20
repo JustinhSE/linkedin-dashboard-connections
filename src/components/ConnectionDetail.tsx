@@ -33,7 +33,7 @@ export const ConnectionDetail: React.FC<Props> = ({ connection, onClose }) => {
   if (connection.seniority === 'manager') whyValuable.push('Can provide referrals within their team');
   if (connection.seniority === 'intern') whyValuable.push('Peer connection for internship insights');
   if (connection.degreeCentrality > 0.1) whyValuable.push('Highly connected within your network');
-  if (connection.betweennessCentrality > 0.05) whyValuable.push('Bridge between different network clusters');
+  if (connection.bridgeScore > 0.1) whyValuable.push('Bridges multiple different network clusters');
 
   return (
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4" onClick={onClose}>
@@ -73,8 +73,8 @@ export const ConnectionDetail: React.FC<Props> = ({ connection, onClose }) => {
             <div className="text-slate-400 text-xs">Degree</div>
           </div>
           <div className="text-center bg-slate-700 rounded-lg p-2">
-            <div className="text-yellow-400 font-bold">{(connection.betweennessCentrality * 100).toFixed(2)}%</div>
-            <div className="text-slate-400 text-xs">Betweenness</div>
+            <div className="text-yellow-400 font-bold">{(connection.bridgeScore * 100).toFixed(1)}%</div>
+            <div className="text-slate-400 text-xs">Bridge Score</div>
           </div>
         </div>
 
@@ -98,6 +98,18 @@ export const ConnectionDetail: React.FC<Props> = ({ connection, onClose }) => {
             </ul>
           </div>
         )}
+
+        <div className="bg-slate-700/50 rounded-lg p-3 mt-3">
+          <p className="text-slate-400 text-xs font-semibold mb-2">📖 Key Term Glossary</p>
+          <ul className="space-y-1.5 text-xs text-slate-400">
+            <li><span className="text-indigo-300 font-medium">Influence Score</span> — Composite score (seniority + company tier + network position). Higher = more valuable connection.</li>
+            <li><span className="text-green-300 font-medium">Degree</span> — Share of your mutual network this person is connected to. High degree = well-connected hub.</li>
+            <li><span className="text-yellow-300 font-medium">Bridge Score</span> — Fraction of your distinct network clusters this person links to. High score = spans multiple industries/companies.</li>
+            <li><span className="text-slate-300 font-medium">Seniority</span> — Inferred career level: intern → junior → mid → senior → manager → director → executive.</li>
+            <li><span className="text-slate-300 font-medium">Company Tier</span> — <em>top-tech</em>: FAANG/elite tech · <em>well-known</em>: Fortune-500 / major brand · <em>startup</em>: early-stage · <em>unknown</em>: not categorized.</li>
+            <li><span className="text-slate-300 font-medium">Cluster</span> — Community this person belongs to, detected automatically based on shared companies and industries.</li>
+          </ul>
+        </div>
 
         {connection.url && (
           <a

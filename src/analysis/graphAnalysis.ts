@@ -1,7 +1,6 @@
 import Graph from 'graphology';
 import louvain from 'graphology-communities-louvain';
 import { degreeCentrality } from 'graphology-metrics/centrality/degree';
-import betweennessCentrality from 'graphology-metrics/centrality/betweenness';
 import type {
   RawConnection, Connection, Cluster, NetworkStats,
   GraphData, GraphNode, GraphLink, SeniorityLevel, CompanyTier
@@ -98,7 +97,7 @@ function computeInfluenceScore(
   seniority: SeniorityLevel,
   companyTier: CompanyTier,
   dc: number,
-  bc: number
+  bridgeScore: number
 ): number {
   const seniorityScore: Record<SeniorityLevel, number> = {
     executive: 10, director: 8, manager: 6, senior: 5, mid: 4, junior: 3, intern: 2, unknown: 1
@@ -109,8 +108,8 @@ function computeInfluenceScore(
   const s = seniorityScore[seniority] ?? 1;
   const t = tierScore[companyTier] ?? 1;
   const dcScore = dc * 40;
-  const bcScore = bc * 30;
-  return Math.round((s * 2 + t * 2 + dcScore + bcScore) * 10) / 10;
+  const bsScore = bridgeScore * 30;
+  return Math.round((s * 2 + t * 2 + dcScore + bsScore) * 10) / 10;
 }
 
 const CLUSTER_COLORS = [
@@ -154,7 +153,7 @@ export function buildNetworkData(rawConnections: RawConnection[]): {
       companyTier,
       influenceScore: 0,
       degreeCentrality: 0,
-      betweennessCentrality: 0,
+      bridgeScore: 0,
       clusteringCoefficient: 0,
     };
   });
@@ -213,18 +212,11 @@ export function buildNetworkData(rawConnections: RawConnection[]): {
   });
 
   let degCentrality: Record<string, number> = {};
-  let btwCentrality: Record<string, number> = {};
 
   try {
     degCentrality = degreeCentrality(graph);
   } catch {
     connections.forEach(c => { degCentrality[c.id] = 0; });
-  }
-
-  try {
-    btwCentrality = betweennessCentrality(graph, { normalized: true });
-  } catch {
-    connections.forEach(c => { btwCentrality[c.id] = 0; });
   }
 
   let communities: Record<string, number> = {};
@@ -234,13 +226,32 @@ export function buildNetworkData(rawConnections: RawConnection[]): {
     connections.forEach(c => { communities[c.id] = 0; });
   }
 
+  // Bridge Score: measures cross-cluster connectivity — the fraction of distinct
+  // clusters represented among a node's neighbors. Unlike betweenness centrality
+  // (which is 0 for all nodes in dense cliques), bridge score is non-zero whenever
+  // a connection has neighbors in multiple different clusters, making it a much
+  // more meaningful metric for this network structure.
+  // neighborClusters.size is bounded by totalClusters, so the result is always in [0, 1].
+  const totalClusters = new Set(Object.values(communities)).size;
+  const bridgeScores: Record<string, number> = {};
+  graph.forEachNode((nodeId) => {
+    const neighborClusters = new Set<number>();
+    graph.forEachNeighbor(nodeId, (neighborId) => {
+      const cid = communities[neighborId];
+      if (cid !== undefined) neighborClusters.add(cid);
+    });
+    bridgeScores[nodeId] = totalClusters > 0
+      ? neighborClusters.size / totalClusters
+      : 0;
+  });
+
   connections.forEach(conn => {
     conn.degreeCentrality = degCentrality[conn.id] ?? 0;
-    conn.betweennessCentrality = btwCentrality[conn.id] ?? 0;
+    conn.bridgeScore = bridgeScores[conn.id] ?? 0;
     conn.clusterId = communities[conn.id] ?? 0;
     conn.influenceScore = computeInfluenceScore(
       conn.seniority, conn.companyTier,
-      conn.degreeCentrality, conn.betweennessCentrality
+      conn.degreeCentrality, conn.bridgeScore
     );
   });
 
