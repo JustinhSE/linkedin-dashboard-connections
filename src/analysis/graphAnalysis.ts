@@ -35,6 +35,11 @@ const WELL_KNOWN_COMPANIES = new Set([
   'target', 'walmart', 'costco', 'kroger', 'home depot', 'lowes'
 ]);
 
+const NONPROFIT_COMPANIES = new Set([
+  'colorstack', 'codepath', 'management leadership for tomorrow',
+  'girls who code', 'rewriting the code',
+]);
+
 const INDUSTRY_MAP: Record<string, string[]> = {
   'Software/Technology': ['software', 'engineer', 'developer', 'tech', 'engineering', 'swe', 'coder', 'programmer', 'fullstack', 'backend', 'frontend', 'devops', 'cloud', 'data', 'ai', 'ml', 'machine learning', 'artificial intelligence', 'cybersecurity', 'security', 'infrastructure', 'platform', 'systems'],
   'Finance/Banking': ['finance', 'bank', 'banking', 'investment', 'analyst', 'quant', 'trading', 'hedge fund', 'private equity', 'venture capital', 'vc', 'fintech', 'accounting', 'cfo', 'treasury'],
@@ -74,6 +79,9 @@ function inferCompanyTier(company: string): CompanyTier {
   for (const name of WELL_KNOWN_COMPANIES) {
     if (c.includes(name)) return 'well-known';
   }
+  for (const name of NONPROFIT_COMPANIES) {
+    if (c.includes(name)) return 'nonprofit';
+  }
   if (/\b(startup|ventures|labs|ai|technologies|solutions|systems|software|digital)\b/.test(c)) return 'startup';
   return 'unknown';
 }
@@ -96,7 +104,7 @@ function computeInfluenceScore(
     executive: 10, director: 8, manager: 6, senior: 5, mid: 4, junior: 3, intern: 2, unknown: 1
   };
   const tierScore: Record<CompanyTier, number> = {
-    'top-tech': 10, 'well-known': 6, 'startup': 4, 'unknown': 1
+    'top-tech': 10, 'well-known': 6, 'startup': 4, 'nonprofit': 4 /* community-focused orgs weighted similarly to startups */, 'unknown': 1
   };
   const s = seniorityScore[seniority] ?? 1;
   const t = tierScore[companyTier] ?? 1;

@@ -9,7 +9,7 @@ export interface RawConnection {
 }
 
 export type SeniorityLevel = 'intern' | 'junior' | 'mid' | 'senior' | 'manager' | 'director' | 'executive' | 'unknown';
-export type CompanyTier = 'top-tech' | 'well-known' | 'startup' | 'unknown';
+export type CompanyTier = 'top-tech' | 'well-known' | 'startup' | 'nonprofit' | 'unknown';
 
 export interface Connection {
   id: string;
