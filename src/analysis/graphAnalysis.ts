@@ -284,7 +284,9 @@ export function buildNetworkData(rawConnections: RawConnection[]): {
 
       const label = dominantIndustry !== 'Other'
         ? `${dominantIndustry} (${dominantCompany !== 'Mixed' ? dominantCompany : dominantIndustry})`
-        : `${dominantCompany} Cluster`;
+        : members.filter(m => m.companyTier === 'nonprofit').length > members.length / 2
+          ? `nonprofit (${dominantCompany})`
+          : `${dominantCompany} Cluster`;
 
       const clusterInsights: string[] = [];
       const topTechCount = members.filter(m => m.companyTier === 'top-tech').length;
