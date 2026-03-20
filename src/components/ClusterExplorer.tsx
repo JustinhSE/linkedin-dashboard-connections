@@ -29,7 +29,7 @@ export const ClusterExplorer: React.FC<Props> = ({ clusters, onSelectConnection 
               <span className="text-slate-400 text-xs">{cluster.members.length} people</span>
             </div>
             <div className="text-slate-500 text-xs mt-0.5">
-              {cluster.dominantIndustry} · {cluster.avgSeniority}
+              {cluster.dominantIndustry}
             </div>
 
             {expanded === cluster.id && (

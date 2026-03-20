@@ -21,7 +21,7 @@ const TIER_BADGES: Record<string, string> = {
   'top-tech': 'bg-green-900 text-green-300',
   'well-known': 'bg-blue-900 text-blue-300',
   'startup': 'bg-yellow-900 text-yellow-300',
-  'unknown': 'bg-slate-700 text-slate-400',
+  'nonprofit': 'bg-pink-900 text-pink-300',
 };
 
 export const ConnectionDetail: React.FC<Props> = ({ connection, onClose }) => {
@@ -48,12 +48,16 @@ export const ConnectionDetail: React.FC<Props> = ({ connection, onClose }) => {
         </div>
 
         <div className="flex flex-wrap gap-2 mb-4">
-          <span className={`text-xs px-2 py-1 rounded-full ${SENIORITY_BADGES[connection.seniority]}`}>
-            {connection.seniority}
-          </span>
-          <span className={`text-xs px-2 py-1 rounded-full ${TIER_BADGES[connection.companyTier]}`}>
-            {connection.companyTier}
-          </span>
+          {connection.seniority !== 'unknown' && (
+            <span className={`text-xs px-2 py-1 rounded-full ${SENIORITY_BADGES[connection.seniority]}`}>
+              {connection.seniority}
+            </span>
+          )}
+          {connection.companyTier !== 'unknown' && (
+            <span className={`text-xs px-2 py-1 rounded-full ${TIER_BADGES[connection.companyTier]}`}>
+              {connection.companyTier}
+            </span>
+          )}
           <span className="text-xs px-2 py-1 rounded-full bg-slate-700 text-slate-300">
             {connection.industry}
           </span>

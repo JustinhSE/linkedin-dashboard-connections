@@ -7,7 +7,14 @@ interface Props {
 
 const TIER_COLORS: Record<string, string> = {
   'top-tech': 'text-green-400', 'well-known': 'text-blue-400',
-  'startup': 'text-yellow-400', 'unknown': 'text-slate-400'
+  'startup': 'text-yellow-400', 'nonprofit': 'text-pink-400',
+};
+
+const TIER_LABELS: Record<string, string> = {
+  'top-tech': '🏆 Top Tech',
+  'well-known': '⭐ Well-Known',
+  'startup': '🚀 Startup',
+  'nonprofit': '💚 Nonprofit',
 };
 
 export const MetricsPanel: React.FC<Props> = ({ stats }) => {
@@ -46,10 +53,12 @@ export const MetricsPanel: React.FC<Props> = ({ stats }) => {
       <div className="bg-slate-800 rounded-xl p-4 border border-slate-700">
         <div className="text-slate-400 text-sm mb-2">Company Tiers</div>
         <div className="space-y-1">
-          {Object.entries(stats.companyTierDistribution).map(([tier, count]) => (
+          {Object.entries(stats.companyTierDistribution)
+            .filter(([tier]) => tier !== 'unknown')
+            .map(([tier, count]) => (
             <div key={tier} className="flex justify-between items-center">
               <span className={`text-xs ${TIER_COLORS[tier] || 'text-slate-400'}`}>
-                {tier === 'top-tech' ? '🏆 Top Tech' : tier === 'well-known' ? '⭐ Well-Known' : tier === 'startup' ? '🚀 Startup' : '❓ Unknown'}
+                {TIER_LABELS[tier] ?? tier}
               </span>
               <span className="text-slate-300 text-xs font-bold">{count}</span>
             </div>
