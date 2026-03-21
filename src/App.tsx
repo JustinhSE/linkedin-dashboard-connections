@@ -22,6 +22,7 @@ function App() {
   const [filterCompany, setFilterCompany] = useState('');
   const [filterIndustry, setFilterIndustry] = useState('');
   const [activeTab, setActiveTab] = useState<'graph' | 'clusters' | 'insights' | 'growth'>('graph');
+  const [showGlossary, setShowGlossary] = useState(false);
 
   const handleFile = async (file: File) => {
     setIsLoading(true);
@@ -136,10 +137,32 @@ function App() {
         <div className="xl:col-span-2">
           {activeTab === 'graph' && filteredGraphData && (
             <div className="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden">
-              <div className="p-3 border-b border-slate-700">
+              <div className="p-3 border-b border-slate-700 flex items-center justify-between">
                 <p className="text-slate-400 text-xs">
                   Showing {filteredGraphData.nodes.length} nodes · Colors = clusters · Size = influence score · Click to explore
                 </p>
+                <div className="relative">
+                  <button
+                    onClick={() => setShowGlossary(g => !g)}
+                    className="text-slate-400 hover:text-slate-200 text-xs w-5 h-5 rounded-full border border-slate-600 flex items-center justify-center"
+                    aria-label="Key Term Glossary"
+                  >
+                    ?
+                  </button>
+                  {showGlossary && (
+                    <div className="absolute right-0 top-7 z-10 bg-slate-800 border border-slate-600 rounded-xl p-3 w-80 shadow-lg">
+                      <p className="text-slate-400 text-xs font-semibold mb-2">📖 Key Term Glossary</p>
+                      <ul className="space-y-1.5 text-xs text-slate-400">
+                        <li><span className="text-indigo-300 font-medium">Influence Score</span> — Composite score (seniority + company tier + network position). Higher = more valuable connection.</li>
+                        <li><span className="text-green-300 font-medium">Degree</span> — Share of your mutual network this person is connected to. High degree = well-connected hub.</li>
+                        <li><span className="text-yellow-300 font-medium">Bridge Score</span> — Fraction of your distinct network clusters this person links to. High score = spans multiple industries/companies.</li>
+                        <li><span className="text-slate-300 font-medium">Seniority</span> — Inferred career level: intern → junior → mid → senior → manager → director → executive.</li>
+                        <li><span className="text-slate-300 font-medium">Company Tier</span> — <em>top-tech</em>: FAANG/elite tech · <em>well-known</em>: Fortune-500 / major brand · <em>startup</em>: early-stage · <em>nonprofit</em>: mission-driven org · <em>unknown</em>: not categorized.</li>
+                        <li><span className="text-slate-300 font-medium">Cluster</span> — Community this person belongs to, detected automatically based on shared companies and industries.</li>
+                      </ul>
+                    </div>
+                  )}
+                </div>
               </div>
               <NetworkGraph
                 graphData={filteredGraphData}
