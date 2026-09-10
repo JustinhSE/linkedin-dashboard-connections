@@ -33,7 +33,7 @@ export const ConnectionDetail: React.FC<Props> = ({ connection, onClose }) => {
   if (connection.seniority === 'manager') whyValuable.push('Can provide referrals within their team');
   if (connection.seniority === 'intern') whyValuable.push('Peer connection for internship insights');
   if (connection.degreeCentrality > 0.1) whyValuable.push('Highly connected within your network');
-  if (connection.bridgeScore > 0.1) whyValuable.push('Bridges multiple different network clusters');
+  if (connection.bridgeScore > 0.25) whyValuable.push('Has broad reach across multiple companies and industries');
 
   return (
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4" onClick={onClose}>
@@ -74,7 +74,7 @@ export const ConnectionDetail: React.FC<Props> = ({ connection, onClose }) => {
           </div>
           <div className="text-center bg-slate-700 rounded-lg p-2">
             <div className="text-yellow-400 font-bold">{(connection.bridgeScore * 100).toFixed(1)}%</div>
-            <div className="text-slate-400 text-xs">Bridge Score</div>
+            <div className="text-slate-400 text-xs">Network Reach</div>
           </div>
         </div>
 
