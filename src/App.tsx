@@ -155,7 +155,7 @@ function App() {
                       <ul className="space-y-1.5 text-xs text-slate-400">
                         <li><span className="text-indigo-300 font-medium">Influence Score</span> — Composite score (seniority + company tier + network position). Higher = more valuable connection.</li>
                         <li><span className="text-green-300 font-medium">Degree</span> — Share of your mutual network this person is connected to. High degree = well-connected hub.</li>
-                        <li><span className="text-yellow-300 font-medium">Bridge Score</span> — Fraction of your distinct network clusters this person links to. High score = spans multiple industries/companies.</li>
+                        <li><span className="text-yellow-300 font-medium">Network Reach</span> — Neighbor diversity score based on how many different companies and industries this person connects you to.</li>
                         <li><span className="text-slate-300 font-medium">Seniority</span> — Inferred career level: intern → junior → mid → senior → manager → director → executive.</li>
                         <li><span className="text-slate-300 font-medium">Company Tier</span> — <em>top-tech</em>: FAANG/elite tech · <em>well-known</em>: Fortune-500 / major brand · <em>startup</em>: early-stage · <em>nonprofit</em>: mission-driven org · <em>unknown</em>: not categorized.</li>
                         <li><span className="text-slate-300 font-medium">Cluster</span> — Community this person belongs to, detected automatically based on shared companies and industries.</li>

@@ -226,23 +226,43 @@ export function buildNetworkData(rawConnections: RawConnection[]): {
     connections.forEach(c => { communities[c.id] = 0; });
   }
 
-  // Bridge Score: measures cross-cluster connectivity — the fraction of distinct
-  // clusters represented among a node's neighbors. Unlike betweenness centrality
-  // (which is 0 for all nodes in dense cliques), bridge score is non-zero whenever
-  // a connection has neighbors in multiple different clusters, making it a much
-  // more meaningful metric for this network structure.
-  // neighborClusters.size is bounded by totalClusters, so the result is always in [0, 1].
-  const totalClusters = new Set(Object.values(communities)).size;
+  // Network Reach Score: estimates how broadly a connection can introduce you
+  // across your graph by measuring diversity among direct neighbors.
+  // It combines neighbor company and industry diversity (with a small bonus for
+  // multi-industry reach) and is clamped to [0, 1].
+  const byId = connections.reduce((acc, conn) => {
+    acc[conn.id] = conn;
+    return acc;
+  }, {} as Record<string, Connection>);
+  const totalCompanies = new Set(
+    connections
+      .map(c => c.company.toLowerCase().trim())
+      .filter(c => c && c !== 'unknown')
+  ).size;
+  const totalIndustries = new Set(
+    connections
+      .map(c => c.industry)
+      .filter(i => i && i !== 'Other')
+  ).size;
   const bridgeScores: Record<string, number> = {};
   graph.forEachNode((nodeId) => {
-    const neighborClusters = new Set<number>();
+    const neighborCompanies = new Set<string>();
+    const neighborIndustries = new Set<string>();
     graph.forEachNeighbor(nodeId, (neighborId) => {
-      const cid = communities[neighborId];
-      if (cid !== undefined) neighborClusters.add(cid);
+      const neighbor = byId[neighborId];
+      if (!neighbor) return;
+      const company = neighbor.company.toLowerCase().trim();
+      if (company && company !== 'unknown') neighborCompanies.add(company);
+      if (neighbor.industry && neighbor.industry !== 'Other') neighborIndustries.add(neighbor.industry);
     });
-    bridgeScores[nodeId] = totalClusters > 0
-      ? neighborClusters.size / totalClusters
+    const companyReach = totalCompanies > 0
+      ? neighborCompanies.size / Math.min(totalCompanies, 12)
       : 0;
+    const industryReach = totalIndustries > 0
+      ? neighborIndustries.size / Math.min(totalIndustries, 8)
+      : 0;
+    const crossIndustryBonus = neighborIndustries.size > 1 ? 0.15 : 0;
+    bridgeScores[nodeId] = Math.max(0, Math.min(1, companyReach * 0.6 + industryReach * 0.4 + crossIndustryBonus));
   });
 
   connections.forEach(conn => {
